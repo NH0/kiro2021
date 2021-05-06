@@ -148,7 +148,9 @@ def start_vns(solution, k_max=CONF.VNS.K_MAX, max_time=CONF.VNS.MAX_TIME,
               max_unimproving_iters=CONF.VNS.MAX_UNIMPROVING_ITERS, phi=CONF.VNS.PHI,
               steps=CONF.VNS.STEPS):
     best_solution = copy.deepcopy(solution)
+    best_score = best_solution.score
     current_solution = copy.deepcopy(solution)
+    current_score = current_solution.score
     t0 = find_t0(solution)
     temperature = t0
     print("----- Starting VNS ! -----")
@@ -159,7 +161,7 @@ def start_vns(solution, k_max=CONF.VNS.K_MAX, max_time=CONF.VNS.MAX_TIME,
     unimproving_iterations = 0
     while (time.time() - start_time) < max_time and unimproving_iterations < max_unimproving_iters:
         k = 0
-        print("Current VNS score : {}".format(best_solution.score))
+        print("Current VNS score : {}".format(best_score))
         logging.info("Starting new VNS loop {}\t"
                      "Temperature is {:.2e}\t"
                      "Execution time is {:.2f}\t"
@@ -185,16 +187,18 @@ def start_vns(solution, k_max=CONF.VNS.K_MAX, max_time=CONF.VNS.MAX_TIME,
             #     time.time() - start_time))
             # logging.debug("Scores {}".format(scores))
 
-            if scores[-1] < best_solution.score:
+            if scores[-1] < best_score:
                 best_solution = copy.deepcopy(solution_prim)
+                best_score = scores[-1]
                 unimproving_iterations = 0
             else:
                 unimproving_iterations += 1
 
             # Simulated annealing
-            delta_f = scores[-1] - current_solution.score
+            delta_f = scores[-1] - current_score
             if delta_f < 0:
                 current_solution = solution_prim
+                current_score = score[-1]
                 k = 0
             else:
                 if temperature > 1e-4:
@@ -202,6 +206,7 @@ def start_vns(solution, k_max=CONF.VNS.K_MAX, max_time=CONF.VNS.MAX_TIME,
                     logging.debug("Proba {}".format(proba))
                     if random.random() < proba and delta_f > 0:
                         current_solution = solution_prim
+                        current_score = scores[-1]
                         k = 0
                     else:
                         k += 1

@@ -178,7 +178,8 @@ class Solution:
                     self.solution[str(group_train[tr]["id"])] = {"voieAQuai" : quai[ind], "itineraire" : str(quai_itin[ind][tr])}
 
 
-
+    def read_sol(self, file):
+        self.solution = utils.read_json(file)
 
     def export(self):
 

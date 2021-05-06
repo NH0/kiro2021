@@ -11,7 +11,10 @@ def main():
     sol = S.Solution(CONF.file)
     sol.compute_admissible()
     sol.contrainte_par_itin()
-    sol.greedy_2()
+    sol.score
+    sol.read_sol("sol_PMP.json")
+    sol, score = vns.start_vns(sol)
+    # sol.greedy_2()
     sol.export()
     print('\n', sol.score)
     return 0
