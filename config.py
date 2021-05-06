@@ -1,8 +1,10 @@
 # Configuration file for the repo
 
 path = "./data/"
-filename = "test_instance1.json"
+filename = "A.json"
 file = path + filename
+
+C0 = 2000
 
 # VNS parameters
 class VNS:
