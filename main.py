@@ -13,7 +13,7 @@ def main():
     sol.contrainte_par_itin()
     sol.greedy_2()
     sol.export()
-    # vns.start_vns(sol)
+    print('\n', sol.pire_trains)
     return 0
 
 if __name__ == "__main__":
