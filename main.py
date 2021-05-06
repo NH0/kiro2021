@@ -9,8 +9,13 @@ import vns
 
 def main():
     sol = S.Solution(CONF.file)
+    sol.compute_admissible()
     # vns.start_vns(sol)
     return 0
 
 if __name__ == "__main__":
     main()
+
+
+
+
