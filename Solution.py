@@ -32,11 +32,12 @@ class Solution:
             if self.solution[sol]["voieAQuai"] == "notAffected":
                 score += CONF.C0
                 self.unassigned.append(sol)
-            for contrainte in self.contraintes:
-                if str(contrainte[0]) == sol and str(contrainte[1]) == self.solution[sol]["itineraire"]:
-                    if str(contrainte[3]) == self.solution[str(contrainte[2])]["itineraire"]:
-                        score += contrainte[4]
-                        self.pire_trains.append([sol, str(contrainte[3]), contrainte[4]])
+            if int(sol) in self.contraintes_par_train:
+                for contrainte in self.contraintes_par_train[int(sol)]:
+                    if str(contrainte[0]) == sol and str(contrainte[1]) == self.solution[sol]["itineraire"]:
+                        if str(contrainte[3]) == self.solution[str(contrainte[2])]["itineraire"]:
+                            score += contrainte[4]
+                            self.pire_trains.append([sol, str(contrainte[3]), contrainte[4]])
         self.pire_trains.sort(key=lambda x:x[2])
         # print(self.pire_trains)
         return score
@@ -86,9 +87,18 @@ class Solution:
 
     def contrainte_par_itin(self):
         self.contraintes_par_itineraire = [[] for i in range(len(self.itineraires))]
+        self.contraintes_par_train = {}
         for c in range(len(self.contraintes)):
             self.contraintes_par_itineraire[self.contraintes[c][1]].append(c)
             self.contraintes_par_itineraire[self.contraintes[c][3]].append(c)
+            if self.contraintes[c][0] in self.contraintes_par_train:
+                self.contraintes_par_train[self.contraintes[c][0]].append(c)
+            else:
+                self.contraintes_par_train[self.contraintes[c][0]] = []
+            if self.contraintes[c][2] in self.contraintes_par_train:
+                self.contraintes_par_train[self.contraintes[c][2]].append(c)
+            else:
+                self.contraintes_par_train[self.contraintes[c][0]] = []
 
 
     def greedy(self):

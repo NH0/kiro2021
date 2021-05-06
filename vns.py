@@ -198,7 +198,7 @@ def start_vns(solution, k_max=CONF.VNS.K_MAX, max_time=CONF.VNS.MAX_TIME,
             delta_f = scores[-1] - current_score
             if delta_f < 0:
                 current_solution = solution_prim
-                current_score = score[-1]
+                current_score = scores[-1]
                 k = 0
             else:
                 if temperature > 1e-4:
