@@ -1,3 +1,4 @@
+import json
 import utils
 import config as CONF
 import numpy as np
@@ -18,8 +19,8 @@ class Solution:
             for tr in train:
                 self.solution[str(tr["id"])] = {"voieAQuai" : "notAffected", "itineraire" : "notAffected"}
 
-        print(self.voiesAQuai)
-        print(self.solution)
+        #print(self.voiesAQuai)
+        #print(self.solution)
 
     @property
     def score(self):
@@ -47,7 +48,7 @@ class Solution:
 
                 for inter in self.interdictions:
                     if train["voieEnLigne"] in inter["voiesEnLigne"] \
-                    or intersection(inter["typesMateriels"], train["typesMateriels"])>0 \
+                    or len(intersection(inter["typesMateriels"], train["typesMateriels"]))>0 \
                     or train["typeCirculation"] in inter["typesCirculation"]:
                         interdites.extend(inter["voiesAQuaiInterdites"])
             interdites = list(set(interdites))
@@ -121,10 +122,18 @@ class Solution:
                         if quai_score[index][t] > cout_itin:
                             quai_score[index][t] = cout_itin
                             quai_itin[index][t] = itin
-                        if quai_itin[index].count(-1) == 0 and np.sum(quai_score[index]) <= 2000*len(train):
-                            for tr in range(len(train)):
-                                self.solution[str(train[tr]["id"])] = {"voieAQuai" : self.itineraires[quai_itin[index][tr]]["voieAQuai"], "itineraire" : str(quai_itin[index][tr])}
-                            break
+            
+            min_sum = np.sum(quai_score[0])
+            ind = 0
+            for i in range(1,len(quai)):
+                if min_sum > np.sum(quai_score[i]):
+                    min_sum = np.sum(quai_score[i])
+                    ind = i
+            
+            if min_sum <= 2000*len(train):
+                for tr in range(len(train)):
+                    self.solution[str(train[tr]["id"])] = {"voieAQuai" : quai[ind], "itineraire" : str(quai_itin[ind][tr])}
+
                        
     def export(self):
 
