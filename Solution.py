@@ -40,7 +40,9 @@ class Solution:
             for train in group_train:
 
                 for inter in self.interdictions:
-                    if train["voieEnLigne"] in inter["voiesEnLigne"] or intersection(inter["typesMateriels"], train["typesMateriels"])>0 or train["typeCirculation"] in inter["typesCirculation"]:
+                    if train["voieEnLigne"] in inter["voiesEnLigne"]
+                    or intersection(inter["typesMateriels"], train["typesMateriels"])>0
+                    or train["typeCirculation"] in inter["typesCirculation"]:
                         interdites.extend(inter["voiesAQuaiInterdites"])
             interdites = list(set(interdites))
 
