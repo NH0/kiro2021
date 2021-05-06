@@ -6,7 +6,7 @@ import copy
 
 import config as CONF
 
-def v1(solution, nb_to_change, nb_to_assign=0):
+def v1(solution, nb_to_change):
     blacklist = set([])
     new_sol = copy.deepcopy(solution)
     for i in range(min(len(solution.pire_trains), nb_to_change)):
@@ -112,6 +112,14 @@ def v1(solution, nb_to_change, nb_to_assign=0):
     return new_sol
 
 
+def v2(solution, nb_to_assign):
+    new_sol = copy.deepcopy(solution)
+    for i in range(min(nb_to_assign, len(solution.unassigned))):
+        train = int(solution.unassigned[i])
+        it = random.randint(0, len(solution.admissible[train]))
+        new_sol.solution[str(train)] = {"voieAQuai": solution.itineraires[it]["voieAQuai"], "itineraire" : it}
+    return new_sol
+
 def find_t0(solution0, pi=CONF.VNS.PI, number_of_neighbors=CONF.VNS.NB_NEIGHBORS_T0):
     score0 = solution0.score
     medium_score = 0
@@ -129,7 +137,10 @@ def find_t0(solution0, pi=CONF.VNS.PI, number_of_neighbors=CONF.VNS.NB_NEIGHBORS
 def v(solution, k=0):
     # RETURN A NEIGHBOR
     # THE STRUCT OF THE NEIGHBOR DEPENDS ON K
-    neighbor = v1(solution, int(len(solution.trains)/10))
+    if k == 0:
+        neighbor = v1(solution, int(len(solution.trains)/10))
+    else:
+        neighbor = v2(solution, int(len(solution.trains)/10))
     return neighbor
 
 
@@ -166,13 +177,13 @@ def start_vns(solution, k_max=CONF.VNS.K_MAX, max_time=CONF.VNS.MAX_TIME,
             # solution_prim.optimize_locally()
             scores.append(solution_prim.score)
 
-            logging.info("VNS score: {}\tCurrent score was {}\tBest score is {}\tk: {}\tTime {:.1f}".format(
-                scores[-1],
-                current_solution.score,
-                best_solution.score,
-                k,
-                time.time() - start_time))
-            logging.debug("Scores {}".format(scores))
+            # logging.info("VNS score: {}\tCurrent score was {}\tBest score is {}\tk: {}\tTime {:.1f}".format(
+            #     scores[-1],
+            #     current_solution.score,
+            #     best_solution.score,
+            #     k,
+            #     time.time() - start_time))
+            # logging.debug("Scores {}".format(scores))
 
             if scores[-1] < best_solution.score:
                 best_solution = copy.deepcopy(solution_prim)

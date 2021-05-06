@@ -27,16 +27,18 @@ class Solution:
     def score(self):
         score = 0
         self.pire_trains = []
+        self.unassigned = []
         for sol in self.solution:
             if self.solution[sol]["voieAQuai"] == "notAffected":
                 score += CONF.C0
+                self.unassigned.append(sol)
             for contrainte in self.contraintes:
                 if str(contrainte[0]) == sol and str(contrainte[1]) == self.solution[sol]["itineraire"]:
                     if str(contrainte[3]) == self.solution[str(contrainte[2])]["itineraire"]:
                         score += contrainte[4]
                         self.pire_trains.append([sol, str(contrainte[3]), contrainte[4]])
         self.pire_trains.sort(key=lambda x:x[2])
-        print(self.pire_trains)
+        # print(self.pire_trains)
         return score
 
     def compute_admissible(self):

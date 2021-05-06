@@ -16,7 +16,7 @@ def main():
     sol, score = vns.start_vns(sol)
     # print(score)
     sol.export()
-    print('\n', sol.pire_trains)
+    print('\n', sol.score)
     return 0
 
 if __name__ == "__main__":
