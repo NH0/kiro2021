@@ -1,3 +1,4 @@
+import json
 import utils
 import config as CONF
 import numpy as np
@@ -48,7 +49,7 @@ class Solution:
 
                 for inter in self.interdictions:
                     if train["voieEnLigne"] in inter["voiesEnLigne"] \
-                    or intersection(inter["typesMateriels"], train["typesMateriels"])>0 \
+                    or len(intersection(inter["typesMateriels"], train["typesMateriels"]))>0 \
                     or train["typeCirculation"] in inter["typesCirculation"]:
                         interdites.extend(inter["voiesAQuaiInterdites"])
             interdites = list(set(interdites))
@@ -80,13 +81,13 @@ class Solution:
 
                 #print(train["id"], len(self.train_quai[train["id"]]))
 
-    
+
     def contrainte_par_itin(self):
         self.contraintes_par_itineraire = [[] for i in range(len(self.itineraires))]
         for c in range(len(self.contraintes)):
             self.contraintes_par_itineraire[self.contraintes[c][1]].append(c)
             self.contraintes_par_itineraire[self.contraintes[c][3]].append(c)
-        
+
 
     def greedy(self):
         appearance_itin = [0 for i in range(len(self.itineraires))]
@@ -118,14 +119,22 @@ class Solution:
                             elif self.contraintes[c][3] == itin:
                                 if self.contraintes[c][2] == train[t]["id"] and self.solution[str(self.contraintes[c][0])]["itineraire"] == str(self.contraintes[c][1]):
                                     cout_itin += self.contraintes[c][4]
-                                    
+
                         if quai_score[index][t] > cout_itin:
                             quai_score[index][t] = cout_itin
                             quai_itin[index][t] = itin
-                        if quai_itin[index].count(-1) == 0 and np.sum(quai_score[index]) <= 2000*len(train):
-                            for tr in range(len(train)):
-                                self.solution[str(train[tr]["id"])] = {"voieAQuai" : self.itineraires[quai_itin[index][tr]]["voieAQuai"], "itineraire" : str(quai_itin[index][tr])}
-                            break
+            
+            min_sum = np.sum(quai_score[0])
+            ind = 0
+            for i in range(1,len(quai)):
+                if min_sum > np.sum(quai_score[i]):
+                    min_sum = np.sum(quai_score[i])
+                    ind = i
+            
+            if min_sum <= 2000*len(train):
+                for tr in range(len(train)):
+                    self.solution[str(train[tr]["id"])] = {"voieAQuai" : quai[ind], "itineraire" : str(quai_itin[ind][tr])}
+
                        
     def export(self):
 
@@ -138,7 +147,11 @@ def intersection(lst1, lst2):
     return lst3
 
 
-
+sol = Solution(CONF.file)
+sol.compute_admissible()
+sol.contrainte_par_itin()
+sol.greedy()
+sol.export()
 
 
 
