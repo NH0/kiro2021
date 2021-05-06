@@ -9,6 +9,7 @@ import vns
 
 def main():
     sol = S.Solution(CONF.file)
+    print(sol.score)
     # vns.start_vns(sol)
     return 0
 
