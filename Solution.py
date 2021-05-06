@@ -1,6 +1,7 @@
 import utils
 import config as CONF
 import numpy as np
+import json
 
 class Solution:
     def __init__(self, file):
@@ -18,8 +19,8 @@ class Solution:
             for tr in train:
                 self.solution[str(tr["id"])] = {"voieAQuai" : "notAffected", "itineraire" : "notAffected"}
 
-        print(self.voiesAQuai)
-        print(self.solution)
+        # print(self.voiesAQuai)
+        # print(self.solution)
 
     @property
     def score(self):

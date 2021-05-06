@@ -12,8 +12,11 @@ def main():
     sol.compute_admissible()
     sol.contrainte_par_itin()
     sol.greedy()
+    sol.score
+    sol, score = vns.start_vns(sol)
+    # print(score)
     sol.export()
-    # vns.start_vns(sol)
+    print('\n', sol.pire_trains)
     return 0
 
 if __name__ == "__main__":
