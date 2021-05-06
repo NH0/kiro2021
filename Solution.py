@@ -19,7 +19,7 @@ class Solution:
 
         print(self.voiesAQuai)
         print(self.solution)
-    
+
     @property
     def score(self):
         score = 0
@@ -31,3 +31,9 @@ class Solution:
                     if str(contrainte[3]) == self.solution[str(contrainte[2])]["itineraire"]:
                         score += contrainte[4]
         return score
+
+    def export(self):
+
+        with open('A.json', 'w') as outfile:
+            json.dump(self.solution, outfile)
+
