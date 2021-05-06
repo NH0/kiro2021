@@ -35,23 +35,45 @@ class Solution:
     def compute_admissible(self):
 
         self.admissible = {}
+        self.train_quai = {}
         for group_train in self.trains:
             interdites = []
             for train in group_train:
 
                 for inter in self.interdictions:
-                    if train["voieEnLigne"] in inter["voiesEnLigne"] or intersection(inter["typesMateriels"], train["typesMateriels"])>0 or train["typeCirculation"] in inter["typesCirculation"]:
+                    if train["voieEnLigne"] in inter["voiesEnLigne"] or len(intersection(inter["typesMateriels"], train["typesMateriels"]))>0 or train["typeCirculation"] in inter["typesCirculation"]:
                         interdites.extend(inter["voiesAQuaiInterdites"])
             interdites = list(set(interdites))
 
             for train in group_train:
                 self.admissible[train["id"]] = []
+                self.train_quai[train["id"]] = []
+
                 for itin in self.itineraires:
                     if itin["sensDepart"] == train["sensDepart"]:
                         if itin["voieEnLigne"] == train["voieEnLigne"]:
                             if itin["voieAQuai"] not in interdites:
 
                                 self.admissible[train["id"]].append(itin["id"])
+                                self.train_quai[train["id"]].append(itin["voieAQuai"])
+
+                self.train_quai[train["id"]] = list(set(self.train_quai[train["id"]]))
+
+                print(train["id"], len(self.train_quai[train["id"]]))
+
+            inter_quai = self.train_quai[group_train[0]["id"]]
+            for train in group_train[1:]:
+                inter_quai = intersection(inter_quai, self.train_quai[train["id"]])
+            for train in group_train:
+
+                for itin in self.admissible[train["id"]]:
+
+                    if self.itineraires[itin]["voieAQuai"] not in inter_quai:
+                        self.admissible[train["id"]].remove(itin)
+
+                print(train["id"], len(self.train_quai[train["id"]]))
+
+
 
 
 
@@ -63,5 +85,16 @@ class Solution:
 def intersection(lst1, lst2):
     lst3 = [value for value in lst1 if value in lst2]
 
-    return len(lst3)
+    return lst3
+
+# sol = Solution(CONF.file)
+sol.compute_admissible()
+
+
+
+
+
+
+
+
 
