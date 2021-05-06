@@ -14,16 +14,16 @@ class Solution:
 
         self.solution = {}
         for train in self.trains:
-            self.solution[string(train["id"])] = {"voieAQuai" : "notAffected", "itineraire" : "notAffected"}
+            for tr in train:
+                self.solution[str(tr["id"])] = {"voieAQuai" : "notAffected", "itineraire" : "notAffected"}
 
         print(self.voiesAQuai)
+        print(self.solution)
     
     @property
     def score(self):
         score = 0
         for sol in self.solution:
             if sol["voieAQuai"] == "notAffected":
-                score += CONF.C0
+                score += CONF.C0 
         return score
-    
-    def 
