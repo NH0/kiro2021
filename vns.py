@@ -6,6 +6,107 @@ import copy
 
 import config as CONF
 
+def v1(solution, nb_to_change, nb_to_assign):
+    blacklist = set([])
+    new_sol = copy.deepcopy(solution)
+    for i in range(nb_to_change):
+        pire_pair = solution.pire_trains[i]
+        train1 = pire_pair[0]
+        train2 = pire_pair[1]
+        to_change = 1
+        best_new_it = ""
+        best_new_score = 5800000
+        # Pour chaque itineraire possible du train ..
+        for it in solution.admissible[train1]:
+            if best_new_score == 0:
+                break
+            # .. qui est different de l'actuel et n'est pas blacklisté ..
+            if it != solution.sol[train1] and it not in blacklist:
+                if len(solution.contraintes_par_itineraire[it]) > 0:
+                    # .. si le train fait partie d'un quintuplet de contrainte contenant cet itineraire ..
+                    for list_contraintes in solution.contraintes_par_itineraire[it]:
+                        if train1 == list_contraintes[0]:
+                            # .. et que l'autre itineraire est utilisé ..
+                            if solution.sol[list_contraintes[2]]["itineraire"] == list_contraintes[3]:
+                                # .. alors le meilleur score est celui du cout d'intersection
+                                if list_contraintes[4] < best_new_score :
+                                    best_new_it = it
+                                    best_new_score = list_contraintes[4]
+                            # .. sinon c'est 0 parce qu'on a trouvé un itineraire sans conflit
+                            else:
+                                best_new_it = it
+                                best_new_score = 0
+                                # .. alors on ne veut pas toucher au deuxième itineraire, on le blacklist
+                                blacklist.add(list_contraintes[3])
+                                break
+                        elif train1 == list_contraintes[2]:
+                            if solution.sol[list_contraintes[0]]["itineraire"] == list_contraintes[1]:
+                                if list_contraintes[4] < best_new_score :
+                                    best_new_it = it
+                                    best_new_score = list_contraintes[4]
+                            else:
+                                best_new_it = it
+                                best_new_score = 0
+                                blacklist.add(list_contraintes[1])
+                                break
+                else:
+                    best_new_it = it
+                    best_new_score = 0
+                    # pas de blacklist car l'itinéraire ne crée aucun conflit
+                    break
+        if best_new_score < 5800000 and best_new_score > 0:
+            for it in solution.admissible[train2]:
+                if best_new_score == 0:
+                    break
+                # .. qui est different de l'actuel et n'est pas blacklisté ..
+                if it != solution.sol[train2] and it not in blacklist:
+                    if len(solution.contraintes_par_itineraire[it]) > 0:
+                        # .. si le train fait partie d'un quintuplet de contrainte contenant cet itineraire ..
+                        for list_contraintes in solution.contraintes_par_itineraire[it]:
+                            if train2 == list_contraintes[0]:
+                                # .. et que l'autre itineraire est utilisé ..
+                                if solution.sol[list_contraintes[2]]["itineraire"] == list_contraintes[3]:
+                                    # .. alors le meilleur score est celui du cout d'intersection
+                                    if list_contraintes[4] < best_new_score :
+                                        best_new_it = it
+                                        best_new_score = list_contraintes[4]
+                                        to_change = 2
+                                # .. sinon c'est 0 parce qu'on a trouvé un itineraire sans conflit
+                                else:
+                                    best_new_it = it
+                                    best_new_score = 0
+                                    to_change = 2
+                                    # .. alors on ne veut pas toucher au deuxième itineraire, on le blacklist
+                                    blacklist.add(list_contraintes[3])
+                                    break
+                            elif train2 == list_contraintes[2]:
+                                if solution.sol[list_contraintes[0]]["itineraire"] == list_contraintes[1]:
+                                    if list_contraintes[4] < best_new_score :
+                                        best_new_it = it
+                                        best_new_score = list_contraintes[4]
+                                        to_change = 2
+                                else:
+                                    best_new_it = it
+                                    best_new_score = 0
+                                    blacklist.add(list_contraintes[1])
+                                    to_change = 2
+                                    break
+                    else:
+                        best_new_it = it
+                        best_new_score = 0
+                        to_change = 2
+                        # pas de blacklist car l'itinéraire ne crée aucun conflit
+                        break
+        # si on a trouvé mieux
+        if best_new_score < 5800000:
+            if to_change == 1:
+                new_sol[train1] = {"voieAQuai": solution.itineraires[best_new_it]["voieAQuai"], "itineraire" : best_new_it}
+            else:
+                new_sol[train2] = {"voieAQuai": solution.itineraires[best_new_it]["voieAQuai"], "itineraire" : best_new_it}
+    
+    # for i in range(nb_to_assign):
+    return new_sol
+
 
 def find_t0(solution0, pi=CONF.VNS.PI, number_of_neighbors=CONF.VNS.NB_NEIGHBORS_T0):
     score0 = solution0.score
@@ -13,7 +114,8 @@ def find_t0(solution0, pi=CONF.VNS.PI, number_of_neighbors=CONF.VNS.NB_NEIGHBORS
     for i in range(number_of_neighbors):
         # MAKE A NEIGHBOR
         # medium_score += int(neighbor.score)
-        pass
+        neighbor = v1(solution0, len(solution0)/10)
+        medium_score += float(neighbor.score)
     medium_score = medium_score / number_of_neighbors
     delta_f = medium_score - score0
 
@@ -23,7 +125,8 @@ def find_t0(solution0, pi=CONF.VNS.PI, number_of_neighbors=CONF.VNS.NB_NEIGHBORS
 def v(solution, k=0):
     # RETURN A NEIGHBOR
     # THE STRUCT OF THE NEIGHBOR DEPENDS ON K
-    return solution
+    neighbor = v1(solution, len(solution)/10)
+    return neighbor
 
 
 def start_vns(solution, k_max=CONF.VNS.K_MAX, max_time=CONF.VNS.MAX_TIME,
@@ -51,7 +154,7 @@ def start_vns(solution, k_max=CONF.VNS.K_MAX, max_time=CONF.VNS.MAX_TIME,
                          time.time() - start_time,
                          unimproving_iterations))
         while k < k_max:
-            solution_prim = v(copy.deepcopy(current_solution), k)
+            solution_prim = v(current_solution, k)
             # HERE IT MAY BE NECESSARY TO MAKE THE NEIGHBOR ADMISSIBLE (REPAIR)
             # OR TO OPTIMIZE IT LOCALLY
             # if not solution_prim.is_admissible():

@@ -10,6 +10,7 @@ import vns
 def main():
     sol = S.Solution(CONF.file)
     sol.compute_admissible()
+    sol.score
     # vns.start_vns(sol)
     return 0
 
