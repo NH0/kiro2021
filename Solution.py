@@ -65,7 +65,7 @@ class Solution:
 
                 self.train_quai[train["id"]] = list(set(self.train_quai[train["id"]]))
 
-                print(train["id"], len(self.train_quai[train["id"]]))
+                #print(train["id"], len(self.train_quai[train["id"]]))
 
             inter_quai = self.train_quai[group_train[0]["id"]]
             for train in group_train[1:]:
@@ -77,7 +77,7 @@ class Solution:
                     if self.itineraires[itin]["voieAQuai"] not in inter_quai:
                         self.admissible[train["id"]].remove(itin)
 
-                print(train["id"], len(self.train_quai[train["id"]]))
+                #print(train["id"], len(self.train_quai[train["id"]]))
 
     
     def contrainte_par_itin(self):
@@ -97,9 +97,9 @@ class Solution:
             quai = []
             quai_score = []
             quai_itin = []
-            for t in train:
+            for t in range(len(train)):
                 for itin in itin_sorted:
-                    if np.isin(itin,self.admissible[t["id"]]):
+                    if np.isin(itin,self.admissible[train[t]["id"]]):
                         q = self.itineraires[itin]["voieAQuai"]
                         if np.isin(q,quai):
                             index = quai.index(q)
@@ -108,34 +108,33 @@ class Solution:
                             quai_score.append([2000 for tr in range(len(train))])
                             index = -1
                             quai_itin.append([-1 for tr in range(len(train))])
-                        
+                        cout_itin = 0
                         for c in self.contraintes_par_itineraire[itin]:
                             if self.contraintes[c][1] == itin :
-                                if self.contraintes[c][0] == t["id"] and self.solution[str(self.contraintes[c][2])]["itineraire"] == str(self.contraintes[c][3]):
-                                    quai_score[index][t] = min(self.contraintes[c][4],quai_score[t])
+                                if self.contraintes[c][0] == train[t]["id"] and self.solution[str(self.contraintes[c][2])]["itineraire"] == str(self.contraintes[c][3]):
+                                    cout_itin += self.contraintes[c][4]
                                     quai_itin[index][t] = itin
                             elif self.contraintes[c][3] == itin:
-                                if self.contraintes[c][2] == t["id"] and self.solution[str(self.contraintes[c][0])]["itineraire"] == str(self.contraintes[c][1]):
-                                    quai_score[index][t] = min(self.contraintes[c][4],quai_score[t])
-                                    quai_itin[index][t] = itin
-                        
+                                if self.contraintes[c][2] == train[t]["id"] and self.solution[str(self.contraintes[c][0])]["itineraire"] == str(self.contraintes[c][1]):
+                                    cout_itin += self.contraintes[c][4]
+                                    
+                        if quai_score[index][t] > cout_itin:
+                            quai_score[index][t] = cout_itin
+                            quai_itin[index][t] = itin
                         if quai_itin[index].count(-1) == 0 and np.sum(quai_score[index]) <= 2000*len(train):
-                            for tr in train:
-                                self.solution[str(tr["id"])] = {"voieAQuai" : self.itineraires[quai_itin[index][tr["id"]]]["voieAQuai"], "itineraire" : str(quai_itin[index][tr["id"]])}
+                            for tr in range(len(train)):
+                                self.solution[str(train[tr]["id"])] = {"voieAQuai" : self.itineraires[quai_itin[index][tr]]["voieAQuai"], "itineraire" : str(quai_itin[index][tr])}
                             break
                        
     def export(self):
 
-        with open('A.json', 'w') as outfile:
+        with open("sol_"+CONF.filename, 'w') as outfile:
             json.dump(self.solution, outfile)
 
 def intersection(lst1, lst2):
     lst3 = [value for value in lst1 if value in lst2]
 
     return lst3
-
-# sol = Solution(CONF.file)
-sol.compute_admissible()
 
 
 
