@@ -11,7 +11,7 @@ def main():
     sol = S.Solution(CONF.file)
     sol.compute_admissible()
     sol.contrainte_par_itin()
-    sol.greedy()
+    sol.greedy_2()
     sol.export()
     # vns.start_vns(sol)
     return 0
