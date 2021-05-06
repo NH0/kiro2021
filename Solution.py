@@ -24,8 +24,12 @@ class Solution:
     def score(self):
         score = 0
         for sol in self.solution:
-            if sol["voieAQuai"] == "notAffected":
+            if self.solution[sol]["voieAQuai"] == "notAffected":
                 score += CONF.C0
+            for contrainte in self.contraintes:
+                if str(contrainte[0]) == sol and str(contrainte[1]) == self.solution[sol]["itineraire"]:
+                    if str(contrainte[3]) == self.solution[str(contrainte[2])]["itineraire"]:
+                        score += contrainte[4]
         return score
 
     def compute_admissible(self):
@@ -60,7 +64,4 @@ def intersection(lst1, lst2):
     lst3 = [value for value in lst1 if value in lst2]
 
     return len(lst3)
-
-sol = Solution(CONF.file)
-sol.compute_admissible()
 
