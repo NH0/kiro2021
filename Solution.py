@@ -23,6 +23,7 @@ class Solution:
     @property
     def score(self):
         score = 0
+        self.pire_trains = []
         for sol in self.solution:
             if self.solution[sol]["voieAQuai"] == "notAffected":
                 score += CONF.C0
@@ -30,6 +31,9 @@ class Solution:
                 if str(contrainte[0]) == sol and str(contrainte[1]) == self.solution[sol]["itineraire"]:
                     if str(contrainte[3]) == self.solution[str(contrainte[2])]["itineraire"]:
                         score += contrainte[4]
+                        self.pire_trains.append([sol, str(contrainte[3]), contrainte[4]])
+        self.pire_trains.sort(key=lambda x:x[2])
+        print(self.pire_trains)
         return score
 
     def compute_admissible(self):
@@ -41,7 +45,9 @@ class Solution:
             for train in group_train:
 
                 for inter in self.interdictions:
-                    if train["voieEnLigne"] in inter["voiesEnLigne"] or len(intersection(inter["typesMateriels"], train["typesMateriels"]))>0 or train["typeCirculation"] in inter["typesCirculation"]:
+                    if train["voieEnLigne"] in inter["voiesEnLigne"] \
+                    or intersection(inter["typesMateriels"], train["typesMateriels"])>0 \
+                    or train["typeCirculation"] in inter["typesCirculation"]:
                         interdites.extend(inter["voiesAQuaiInterdites"])
             interdites = list(set(interdites))
 
