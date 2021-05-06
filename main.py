@@ -11,10 +11,7 @@ def main():
     sol = S.Solution(CONF.file)
     sol.compute_admissible()
     sol.contrainte_par_itin()
-    sol.greedy()
-    sol.score
-    sol, score = vns.start_vns(sol)
-    # print(score)
+    sol.greedy_2()
     sol.export()
     print('\n', sol.score)
     return 0
